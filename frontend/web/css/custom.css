@@ -1,0 +1,30 @@
+.nav-links ul.pagination li.active a{
+    background-color: #000 !important;
+    border: none;
+}
+
+.nav-links ul.pagination li.prev span,
+.nav-links ul.pagination li.next span,
+.nav-links ul.pagination li a
+{
+    height: 45px;
+    width: 45px;
+    border-radius: 100%;
+    color: #fff !important;
+    background-color: #EC521E;
+    text-align: center;
+    line-height: 32px;
+    margin: 4px 4px;
+}
+
+.search-query {
+    color: #EC521E;
+}
+
+.pagination-entry .pagination {
+    margin: 0;
+}
+
+.single-page-content-area .post-wrap a {
+    color: #EC521E !important;
+}
