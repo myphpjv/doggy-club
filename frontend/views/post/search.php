@@ -7,7 +7,6 @@ use yii\data\Pagination;
 /* @var $models Post[] */
 /* @var $pages Pagination */
 /* @var $q string */
-/* @var $shortQuery bool */
 
 $this->title = 'Поиск на сайте ' . Yii::$app->params['siteName'];
 $this->registerMetaTag([
@@ -20,7 +19,7 @@ $this->registerLinkTag(['rel' => 'canonical', 'href' => Yii::$app->urlManager->c
 <div class="category-posts-wrap">
     <div class="search-page-title">
         <h1>Результаты поиска: <span class="search-query"><?= $q ?></span></h1>
-        <?php if ($shortQuery) { ?>
+        <?php if (strlen($q) < 3) { ?>
             <div class="search-empty">Запрос слишком короткий. Введите минимум 3 символа.</div>
         <?php }
         if (empty($models)) { ?>

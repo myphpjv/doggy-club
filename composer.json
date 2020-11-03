@@ -22,7 +22,9 @@
         "mohorev/yii2-upload-behavior": "*",
         "yiisoft/yii2-bootstrap4": "~2.0.6",
         "yiisoft/yii2-imagine": "~2.2.0",
-        "rmrevin/yii2-minify-view": "^1.15"
+        "rmrevin/yii2-minify-view": "^1.15",
+        "yiisoft/yii2-sphinx": "~2.0.0",
+        "telegram-bot/api": "^2.3"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

@@ -7,8 +7,10 @@ use yii\behaviors\SluggableBehavior;
 use yii\behaviors\TimestampBehavior;
 use mohorev\file\UploadImageBehavior;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 use yii\helpers\StringHelper;
 use yii\helpers\Url;
+use yii\sphinx\Query;
 
 /**
  * This is the model class for table "post".
@@ -292,26 +294,29 @@ class Post extends \yii\db\ActiveRecord
      * @param string $q
      * @return HelperQuery
      */
-    public static function findByRequestQuery($q)
+    public static function findByKeywordQuery($q)
     {
-        return self::find()->active()
-            ->andWhere([
+        if (strlen($q) < 3) {
+            return Post::find()->andWhere(new Expression('0=1'));
+        }
+
+        $sphinxQuery = new Query();
+        $sphinxQuery->from('dogs')->select('id')->match($q)
+            ->limit(2000)->options(['max_matches' => 2000]);
+        $query = Post::find()->active();
+        try {
+            $rows = $sphinxQuery->all();
+            $ids = ArrayHelper::getColumn($rows, 'id');
+            $query->andWhere(['id' => $ids]);
+        } catch (\Exception $e) {
+            // если сфинкс не запущен, отработает поиск по названию или контенту из БД
+            $query->andWhere([
                 'or',
                 ['like', 'title', $q],
                 ['like', 'content', $q]
             ]);
-    }
-
-    /**
-     * Поиск по ключевому слову
-     *
-     * @param string $q
-     * @param int $limit
-     * @return array|\yii\db\ActiveRecord[]
-     */
-    public static function findByRequest($q, $limit = 6)
-    {
-        return self::findByRequestQuery($q)->all();
+        }
+        return $query;
     }
 
     /**

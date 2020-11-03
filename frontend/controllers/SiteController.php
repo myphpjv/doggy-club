@@ -1,12 +1,17 @@
 <?php
+
 namespace frontend\controllers;
 
 use common\models\Post;
 use frontend\components\Sitemap;
 use yii\data\Pagination;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
+use yii\sphinx\Query;
 use yii\web\Controller;
+use TelegramBot\Api\Exception;
+use TelegramBot\Api\Client;
 
 /**
  * Site controller
@@ -26,7 +31,6 @@ class SiteController extends Controller
         ];
     }
 
-
     /**
      * @param string|null $q
      * @return string
@@ -34,15 +38,11 @@ class SiteController extends Controller
     public function actionSearch($q = null)
     {
         $q = trim($q);
-        if(isset($_REQUEST['q'])) {
+        if (isset($_REQUEST['q'])) {
             $this->redirect(Url::to(['/site/search', 'q' => $q]));
         }
-        $shortQuery = strlen($q) < 3;
-        if($shortQuery) {
-            $query = Post::find()->andWhere(new Expression('0=1'));
-        } else {
-            $query = Post::findByRequestQuery($q);
-        }
+
+        $query  = Post::findByKeywordQuery($q);
         $countQuery = clone $query;
         $pages = new Pagination(['totalCount' => $countQuery->count()]);
         $pages->defaultPageSize = 6;
@@ -50,7 +50,6 @@ class SiteController extends Controller
 
         return $this->render('/post/search', [
             'q' => $q,
-            'shortQuery' => $shortQuery,
             'models' => $models,
             'pages' => $pages,
             'popular' => Post::getPopular(),
@@ -65,6 +64,19 @@ class SiteController extends Controller
     {
         $siteMap = new Sitemap();
         $siteMap->generate();
+    }
+
+    public function actionBot()
+    {
+        try {
+            $bot = new Client(\Yii::$app->params['botApiToken']);
+            $bot->command('start', function ($message) use ($bot) {
+                $bot->sendMessage($message->getChat()->getId(), 'Welcome!');
+            });
+            $bot->run();
+        } catch (Exception $e) {
+            \Yii::info($e->getMessage());
+        }
     }
 
 }
